@@ -57,12 +57,10 @@ function blockAllInteractiveElements(isEnabled) {
       button.addEventListener('click', preventNavigation);
       button.disabled = true;
       button.style.cursor = 'not-allowed';
-      button.style.opacity = '0.6';
     } else {
       button.removeEventListener('click', preventNavigation);
       button.disabled = false;
       button.style.cursor = 'pointer';
-      button.style.opacity = '1';
     }
   }
 
@@ -73,12 +71,10 @@ function blockAllInteractiveElements(isEnabled) {
       input.addEventListener('click', preventNavigation);
       input.disabled = true;
       input.style.cursor = 'not-allowed';
-      input.style.opacity = '0.6';
     } else {
       input.removeEventListener('click', preventNavigation);
       input.disabled = false;
       input.style.cursor = 'pointer';
-      input.style.opacity = '1';
     }
   }
 }

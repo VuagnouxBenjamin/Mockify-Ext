@@ -36,8 +36,9 @@ function createProtectionMessage() {
   return messageDiv;
 }
 
-// Bloquer tous les liens de la page
-function blockAllLinks(isEnabled) {
+// Bloquer tous les éléments interactifs de la page
+function blockAllInteractiveElements(isEnabled) {
+  // Bloquer les liens
   const links = document.getElementsByTagName('a');
   for (const link of links) {
     if (isEnabled) {
@@ -46,6 +47,38 @@ function blockAllLinks(isEnabled) {
     } else {
       link.removeEventListener('click', preventNavigation);
       link.style.cursor = 'pointer';
+    }
+  }
+
+  // Bloquer les boutons
+  const buttons = document.getElementsByTagName('button');
+  for (const button of buttons) {
+    if (isEnabled) {
+      button.addEventListener('click', preventNavigation);
+      button.disabled = true;
+      button.style.cursor = 'not-allowed';
+      button.style.opacity = '0.6';
+    } else {
+      button.removeEventListener('click', preventNavigation);
+      button.disabled = false;
+      button.style.cursor = 'pointer';
+      button.style.opacity = '1';
+    }
+  }
+
+  // Bloquer les inputs de type submit et button
+  const inputs = document.querySelectorAll('input[type="submit"], input[type="button"]');
+  for (const input of inputs) {
+    if (isEnabled) {
+      input.addEventListener('click', preventNavigation);
+      input.disabled = true;
+      input.style.cursor = 'not-allowed';
+      input.style.opacity = '0.6';
+    } else {
+      input.removeEventListener('click', preventNavigation);
+      input.disabled = false;
+      input.style.cursor = 'pointer';
+      input.style.opacity = '1';
     }
   }
 }
@@ -66,7 +99,7 @@ function setupMutationObserver(isEnabled) {
     window.mockifyObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.addedNodes.length) {
-          blockAllLinks(true);
+          blockAllInteractiveElements(true);
         }
       });
     });
@@ -87,13 +120,13 @@ function handleProtectionMessage(isEnabled) {
       messageDiv = createProtectionMessage();
       document.body.appendChild(messageDiv);
     }
-    blockAllLinks(true);
+    blockAllInteractiveElements(true);
     setupMutationObserver(true);
   } else {
     if (messageDiv) {
       messageDiv.remove();
     }
-    blockAllLinks(false);
+    blockAllInteractiveElements(false);
     setupMutationObserver(false);
   }
 }

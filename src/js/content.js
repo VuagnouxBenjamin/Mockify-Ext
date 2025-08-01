@@ -36,7 +36,49 @@ function createProtectionMessage() {
   return messageDiv;
 }
 
-// Gérer l'affichage du message
+// Bloquer tous les liens de la page
+function blockAllLinks(isEnabled) {
+  const links = document.getElementsByTagName('a');
+  for (const link of links) {
+    if (isEnabled) {
+      link.addEventListener('click', preventNavigation);
+      link.style.cursor = 'not-allowed';
+    } else {
+      link.removeEventListener('click', preventNavigation);
+      link.style.cursor = 'pointer';
+    }
+  }
+}
+
+// Fonction pour empêcher la navigation
+function preventNavigation(event) {
+  event.preventDefault();
+  event.stopPropagation();
+}
+
+// Observer les modifications du DOM pour bloquer les nouveaux liens
+function setupMutationObserver(isEnabled) {
+  if (window.mockifyObserver) {
+    window.mockifyObserver.disconnect();
+  }
+
+  if (isEnabled) {
+    window.mockifyObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length) {
+          blockAllLinks(true);
+        }
+      });
+    });
+
+    window.mockifyObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+}
+
+// Gérer l'affichage du message et le blocage des liens
 function handleProtectionMessage(isEnabled) {
   let messageDiv = document.getElementById('mockify-protection-message');
   
@@ -45,10 +87,14 @@ function handleProtectionMessage(isEnabled) {
       messageDiv = createProtectionMessage();
       document.body.appendChild(messageDiv);
     }
+    blockAllLinks(true);
+    setupMutationObserver(true);
   } else {
     if (messageDiv) {
       messageDiv.remove();
     }
+    blockAllLinks(false);
+    setupMutationObserver(false);
   }
 }
 
